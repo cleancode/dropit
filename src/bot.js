@@ -5,8 +5,9 @@ var util = require("util"),
 
 module.exports = (function(Bot) {
   
-  Bot = function() {
+  Bot = function(timeToThink) {
     this.name = "bot"
+    this.timeToThink = timeToThink
   }
 
   Bot.prototype.join = function(board) {
@@ -25,6 +26,11 @@ module.exports = (function(Bot) {
     board.on("over", function() {
       self.leaveFrom(board)  
     })
+    if (this.timeToThink) {
+      return setTimeout(function() {
+        board.drop(self, Bot.pick())
+      }, this.timeToThink)
+    }
     board.drop(this, Bot.pick())
   }
 

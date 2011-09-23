@@ -75,7 +75,7 @@ cli.main(function(args, options) {
           }, request.query.waitForDrop || 30000)
 
           setTimeout(function() {
-            (new Bot(board)).join(board)
+            (new Bot(request.query.timeToThink)).join(board)
           }, request.query.waitForJoin || 60000)
 
           response.writeHead(201, {"content-type": "application/json"})
@@ -145,7 +145,7 @@ cli.main(function(args, options) {
 
       resource.get("/player/:name/scores", function(request, response) {
         var player = new Player(request.params.name)
-        (new Scores(redis)).forPlayer(player, function(error, scores) {
+        ;(new Scores(redis)).forPlayer(player, function(error, scores) {
           response.writeHead(200, {"content-type": "application/json"})
           response.end(JSON.stringify({scores: scores}))
         })
@@ -166,9 +166,11 @@ cli.main(function(args, options) {
         response.end(request.rawBody)
       })
 
-      resource.get("/watch", function(request, response, next) {
-        request.url = request.url.replace("/watch", "/html/watch.html")
-        next()
+      _(["watch", "game", "leaderboard"]).each(function(page) {
+        resource.get("/" + page, function(request, response, next) {
+          request.url = request.url.replace("/" + page, "/html/" + page + ".html")
+          next()
+        })
       })
     }),
     connect["static"](path.join(__dirname, "public"))

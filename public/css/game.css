@@ -1,0 +1,82 @@
+body { 
+	height: 100%;
+	background-color: #FFF;
+	margin: 8px; 
+}
+.container { 
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background-color: #E6E2AF;
+	padding-top: 10px;
+}
+.container div {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.container p {
+	padding: 10px;
+	margin-top: 10px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background-color: #FFFFFF;
+}
+.login {
+	margin: 10px 0px 10px 0px;
+	background-color: #FFF;
+}
+.login img {
+	cursor: pointer;
+}
+.login input {
+	width: 100%;
+	height: 48px;
+	font-size: 24px; 
+	border: 1px solid #999; 
+	margin-top: 40px; 
+	padding: 10px 20px 10px 20px; 
+}
+p.player {
+	background-color: #FFF;
+	margin-bottom: 0px;
+	padding-bottom: 10px;
+}
+.player .player_data {
+	display: inline-block;
+	text-align: right;
+	width: 280px;
+}
+.player_data .player_name {
+	font-size: 42px;
+	font-weight: 800;
+}
+.player_data .player_scores {
+	font-size: 12px;
+	font-weight: 300;
+}
+p.board {
+	height: 380px;
+	background-color: #FFF;
+	position: relative;
+}
+#vs {
+	z-index: 1;
+	position: absolute;
+	left: 764px;
+	top: 130px;
+}
+p.rank {
+	height: 100%;
+	font-size: 42px;
+	font-weight: 800;
+	text-align: center;
+}
+div.position {
+	margin: 0px;
+	padding: 0px;
+}
+div.position p {
+	margin: 0px;
+	padding: 10px;
+}
