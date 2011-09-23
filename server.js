@@ -3,6 +3,7 @@ var util = require("util"),
     cli = require("cli"),
     daemon = require("daemon"),
     connect = require("connect"),
+    Player = require("./src/player"),
     _ = require("underscore")
 
 
@@ -31,6 +32,14 @@ cli.main(function(args, options) {
   connect(
     connect.bodyParser(),
     connect.router(function(resource) {
+
+      resource.get("/whoami", function(request, response) {
+        authenticate(request, response, function() {
+          response.writeHead(200, {"content-type": "application/json"})
+          response.end(JSON.stringify({player: request.player}))
+        })
+      })
+
       resource.get("/ping", function(request, response) {
         response.writeHead(200, {"Content-Type": "plain/text"})
         response.end("PONG")
@@ -51,5 +60,21 @@ cli.main(function(args, options) {
         process.exit(1)
       }
     })
+  }
+
+
+
+  function authenticate(request, response, callback) {
+    if (request.headers["x-dropit-user"]) {
+      var name = request.headers["x-dropit-user"]
+      if (name === "bot") {
+        response.writeHead(403)
+        return response.end()
+      }
+      request.player = new Player(name)
+      return callback(request, response)
+    }
+    response.writeHead(401)
+    response.end()
   }
 })

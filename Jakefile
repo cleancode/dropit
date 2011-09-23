@@ -39,6 +39,7 @@ task("lint", function() {
  
   fileToLint.include(path.join(ROOT_DIRECTORY, "src/*.js"))
   fileToLint.include(path.join(ROOT_DIRECTORY, "spec/src/*.js"))
+  fileToLint.include(path.join(ROOT_DIRECTORY, "spec/helper/*.js"))
   fileToLint.include(path.join(ROOT_DIRECTORY, "server.js"))
   async.series(
     _(fileToLint.toArray()).map(function(path) {

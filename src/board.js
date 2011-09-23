@@ -1,0 +1,156 @@
+var util = require("util"),
+    uuid = require("node-uuid"),
+    _ = require("underscore")
+
+
+module.exports = (function(Board) {
+
+  var SYMBOLS = ["rock", "scissors", "paper", "lizard", "spock"]
+  var RULES = {
+    "lizard": ["paper", "spock"],
+    "spock": ["scissors", "rock"],
+    "scissors": ["lizard", "paper"],
+    "rock": ["scissors", "lizard"],
+    "paper": ["spock", "rock"]
+  }
+
+  Board = function() {
+    this.id = uuid()
+    this.drops = {}
+    this.players = {}
+    this.score = {}
+    this.status = "waiting-for-players"
+  }
+
+  Board.prototype.join = function(player) {
+    var numberOfPlayers = this.numberOfPlayers()
+    if (numberOfPlayers > 1) {
+      return false
+    }
+    if (this.isPlayer(player)) {
+      return false
+    }
+    if (numberOfPlayers === 1) {
+      this.players[player.name] = player
+      this.status = "ready-to-play"
+      return true
+    }
+    if (numberOfPlayers === 0) {
+      this.players[player.name] = player
+      this.status = "waiting-for-player"
+      return true
+    }
+    return false
+  }
+
+  Board.prototype.leave = function(player) {
+    if (!this.canBeLeaved()) {
+      return false
+    }
+    if (!this.isPlayer(player)) {
+      return false
+    }
+    delete this.players[player.name]
+    if (this.numberOfPlayers() === 0) {
+      this.status = "empty"
+    }
+    return true
+  }
+
+  Board.prototype.drop = function(player, symbol) {
+    if (!this.canBePlayed() || !this.canPlay(player) || !this.isValidSymbol(symbol)) {
+      return false
+    }
+    if (this.status === "ready-to-play") {
+      this.status = "waiting-for-drop"
+      this.drops[player.name] = symbol
+      return true
+    }
+    if (this.status === "waiting-for-drop") {
+      this.status = "game-over"
+      this.drops[player.name] = symbol
+      this.winner = player.name
+      this.checkout()
+      return true
+    }
+    return false
+  }
+
+  Board.prototype.checkout = function() {
+    if (this.drops.length < 2) return null
+    var symbols = _(this.drops).values(),
+        players = _(this.drops).keys()
+
+    if (symbols[0] === symbols[1]) {
+      this.score[players[0]] = {score: 2, result: "tie"}
+      this.score[players[1]] = {score: 2, result: "tie"}
+      return;
+    }
+    if (_(RULES[symbols[0]]).contains(symbols[1])) {
+      this.score[players[0]] = {score: 5, result: "win"}
+      this.score[players[1]] = {score: 1, result: "loose"}
+      return;
+    }
+    if (_(RULES[symbols[1]]).contains(symbols[0])) {
+      this.score[players[1]] = {score: 5, result: "win"}
+      this.score[players[0]] = {score: 1, result: "loose"}
+      return;
+    }
+  }
+
+  Board.prototype.toJSON = function() {
+    return {
+      id: this.id,
+      status: this.status,
+      players: _(this.players)
+        .chain()
+        .values()
+        .map(function(player) { 
+          return player.toJSON() 
+        })
+        .value(),
+      drops: this.drops,
+      score: this.score
+    }
+  }
+
+  Board.prototype.numberOfPlayers = function() {
+    return _(this.players).keys().length
+  }
+
+  Board.prototype.canPlay = function(player) {
+    return this.isPlayer(player) && !this.hasAlreadyPlayed(player)
+  }
+
+  Board.prototype.isPlayer = function(player) {
+    return !!_(this.players).detect(function(playerOnBoard) {
+      return playerOnBoard.name === player.name
+    })
+  }
+
+  Board.prototype.hasAlreadyPlayed = function(player) {
+    return !!this.drops[player.name]
+  }
+
+  Board.prototype.canBeLeaved = function() {
+    return this.status === "game-over"
+  }
+
+  Board.prototype.canBePlayed = function() {
+    return _(["ready-to-play", "waiting-for-drop"]).contains(this.status)
+  }
+
+  Board.prototype.canBeJoined = function() {
+    return _(["waiting-for-players", "waiting-for-player"]).contains(this.status)
+  }
+
+  Board.prototype.isValidSymbol = function(symbol) {
+    return _(SYMBOLS).contains(symbol)
+  }
+
+  Board.symbols = function() {
+    return SYMBOLS
+  }
+
+  return Board
+})()
