@@ -21,7 +21,7 @@ module.exports = function(dropit) {
 
   dropit.joinTo = function(name, board, callback) {
     login(name, function(player) {
-      player.post("/board/" + board.id + "/players?waitForJoin=25&waitForDrop=25", function(error, response, body) {
+      player.post("/board/" + board.id + "/players?waitForJoin=50&waitForDrop=50", function(error, response, body) {
         expect(response.statusCode).toBe(201)
         callback(player, JSON.parse(body).board)
       })
