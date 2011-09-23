@@ -84,4 +84,30 @@ describe("Board", function() {
       })
     })
   })
+
+  describe("timeout", function() {
+    xit("should drop for a player", function() {
+      // TODO: make it pass
+      this.board.join(this.p1)
+      this.board.join(this.p2)
+      this.board.timeout(this.p1)
+      expect(this.board.drops["p1"]).toBe("timeout")
+      expect(this.board.status).toBe("waiting-for-drop")
+    })
+    
+    xit("should loose with every symbol", function() {
+      // TODO: make it pass
+      this.board.join(this.p1)
+      this.board.join(this.p2)
+      this.board.timeout(this.p1)
+      this.board.drop(this.p2, "paper")
+      expect(this.board.score["p1"].result).toBe("loose")
+      expect(this.board.score["p1"].score).toBe(0)
+      expect(this.board.score["p2"].result).toBe("win")
+    })
+    
+    it("should not be a valid symbol", function() {
+      expect(Board.symbols()).not.toContain("timeout")
+    })
+  })
 })

@@ -60,6 +60,10 @@ describe("/board", function() {
         })
       })
     })
+
+    it("should join a bot after timeout", function() {
+      // TODO: after 50ms the opponent should be named bot
+    })
   })
 
   describe("POST /board/:id/drops", function() {
@@ -84,6 +88,14 @@ describe("/board", function() {
           })
         })
       })
+    })
+
+    it("should drop a timeout symbol after timeout", function() {
+      // TODO: after 50ms the opponent should be named bot
+    })
+
+    it("should drop a timeout symbol after timeout for both players", function() {
+      // TODO: after 50ms the opponent should be named bot
     })
   })
 })
