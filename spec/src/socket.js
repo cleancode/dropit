@@ -40,7 +40,7 @@ describe("Socket", function() {
             done()
           })
           dropit.joinTo("p2", board, function(p2, board) {
-            dropit.dropOn(p1, board, "spock", function(board) {
+            dropit.dropOn(p1, "spock", board, function(board) {
               expect(board.status).toBe("waiting-for-drop")
             })
           })
@@ -55,14 +55,14 @@ describe("Socket", function() {
     dropit.connect(function(socket) {
       dropit.join("p1", function(p1, board) {
         dropit.joinTo("p2", board, function(p2, board) {
-          dropit.dropOn(p1, board, "spock", function(board) {
+          dropit.dropOn(p1, "spock", board, function(board) {
             socket.emit("subscribe", "/board/" + board.id, function(channels) {
               socket.on("drop", function(player, symbol) {
                 expect(player.name).toBe("p2")
                 expect(symbol).toBe("lizard")
                 done()
               })
-              dropit.dropOn(p2, board, "lizard", function(board) {
+              dropit.dropOn(p2, "lizard", board, function(board) {
                 expect(board.status).toBe("game-over")
               })
             })
@@ -78,13 +78,13 @@ describe("Socket", function() {
     dropit.connect(function(socket) {
       dropit.join("p1", function(p1, board) {
         dropit.joinTo("p2", board, function(p2, board) {
-          dropit.dropOn(p1, board, "spock", function(board) {
+          dropit.dropOn(p1, "spock", board, function(board) {
             socket.emit("subscribe", "/board/" + board.id, function(channels) {
               socket.on("over", function(board) {
                 expect(board.score.p2.result).toBe("win")
                 done()
               })
-              dropit.dropOn(p2, board, "lizard", function(board) {
+              dropit.dropOn(p2, "lizard", board, function(board) {
                 expect(board.status).toBe("game-over")
               })
             })
