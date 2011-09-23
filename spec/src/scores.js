@@ -9,7 +9,7 @@ describe("Scores", function() {
     wait()
     var self = this
     self.redis = require("redis").createClient(REDIS.port, REDIS.host)
-    slef.redis.flushdb(function() {
+    self.redis.flushdb(function() {
       self.p1 = new Player("p1")
       self.p2 = new Player("p2")
       self.bot = new Player("bot")
@@ -22,8 +22,7 @@ describe("Scores", function() {
     })
   })
 
-  xit("should keep the players score", function() {
-    // TODO: make it pass
+  it("should keep the players score", function() {
     wait()
     var self = this
     _(new Scores(self.redis)).tap(function(scores) {
@@ -41,8 +40,7 @@ describe("Scores", function() {
     })
   })
 
-  xit("should count the number of games played and number of unique players", function() {
-    // TODO: make it pass
+  it("should count the number of games played and number of unique players", function() {
     wait()
     var self = this
     _(new Scores(self.redis)).tap(function(scores) {
@@ -56,8 +54,7 @@ describe("Scores", function() {
     })
   })
 
-  xit("should store the leaderboard", function() {
-    // TODO: make it pass
+  it("should store the leaderboard", function() {
     wait()
     var self = this
     _(new Scores(self.redis)).tap(function(scores) {
@@ -75,8 +72,7 @@ describe("Scores", function() {
   })
 
   describe("bot", function() {
-    xit("should not be in the leaderboard", function() {
-      // TODO: make it pass
+    it("should not be in the leaderboard", function() {
       wait()
       var self = this, board = new Board()
       board.join(self.p1)
@@ -84,7 +80,7 @@ describe("Scores", function() {
       board.drop(self.p1, "spock")
       board.drop(self.bot, "scissors")
       _(new Scores(self.redis)).tap(function(scores) {
-        scores.score(self.board, function() {
+        scores.score(board, function() {
           scores.leaderboard(function(error, leaderboard) {
             expect(leaderboard.length).toBe(1)
             expect(leaderboard[0].player).toBe("p1")

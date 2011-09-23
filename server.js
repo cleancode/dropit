@@ -6,6 +6,7 @@ var util = require("util"),
     Player = require("./src/player"),
     Board = require("./src/board"),
     Boards = require("./src/boards"),
+    Scores = require("./src/scores"),
     Bot = require("./src/bot"),
     _ = require("underscore")
 
@@ -30,7 +31,7 @@ cli.main(function(args, options) {
     cli.getUsage()
   }
 
-  var boards = new Boards()
+  var boards = new Boards(), redis = require("redis").createClient(options.redis)
 
   connect.bodyParser.parse["plain/text"] = function(rawBody) { return rawBody }
 
@@ -141,6 +142,20 @@ cli.main(function(args, options) {
         })
       })
 
+      resource.get("/player/:name/scores", function(request, response) {
+        var player = new Player(request.params.name)
+        (new Scores(redis)).forPlayer(player, function(error, scores) {
+          response.writeHead(200, {"content-type": "application/json"})
+          response.end(JSON.stringify({scores: scores}))
+        })
+      })
+      resource.get("/scores/leaderboard", function(request, response) {
+        (new Scores(redis)).leaderboard(function(error, leaderboard) {
+          response.writeHead(200, {"content-type": "application/json"})
+          response.end(JSON.stringify({leaderboard: leaderboard}))
+        })
+      })
+
       resource.get("/ping", function(request, response) {
         response.writeHead(200, {"content-type": "plain/text"})
         response.end("PONG")
@@ -165,6 +180,7 @@ cli.main(function(args, options) {
       io.channel("/board/" + board.id).emit("drop", player, symbol, board)
     })
     board.on("over", function(board) {
+      (new Scores(redis)).score(board)
       io.channel("/board/" + board.id).emit("over", board)
     })
     board.on("leave", function(player) {

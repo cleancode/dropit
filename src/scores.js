@@ -24,7 +24,19 @@ module.exports = (function(Scores) {
   }
   
   Scores.prototype.score = function(board, callback) {
-    // TODO: implement me
+    var commands = _(board.players).reduce(function(commands, player) {
+      if (player.name === "bot") return commands
+      var key = "/player/" +  player.name,
+          result = board.score[player.name]
+
+      commands.push(["hincrby", key, "games", 1])
+      commands.push(["hincrby", key, "score", result.score])
+      commands.push(["zincrby", "/leaderboard", result.score, player.name])
+      commands.push(["sadd", "/players", player.name])
+      return commands
+    }, [])
+    commands.push(["incr", "/games"])
+    this.redis.multi(commands).exec(callback)
   }
 
   Scores.prototype.forPlayer = function(player, callback) {
