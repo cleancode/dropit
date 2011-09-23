@@ -11,6 +11,7 @@ describe("Socket", function() {
   })
 
   xit("should emit join when opponent join the board", function() {
+    // TODO: make it run
     wait()
     dropit.connect(function(socket) {
       dropit.join("p1", function(p1, board) {
@@ -28,6 +29,7 @@ describe("Socket", function() {
   })
 
   xit("should emit drop when player drop a symbol on the board", function() {
+    // TODO: make it run
     wait()
     dropit.connect(function(socket) {
       dropit.join("p1", function(p1, board) {
@@ -48,6 +50,7 @@ describe("Socket", function() {
   })
 
   xit("should emit drop when last player drop a symbol on the board", function() {
+    // TODO: make it run
     wait()
     dropit.connect(function(socket) {
       dropit.join("p1", function(p1, board) {
@@ -70,6 +73,7 @@ describe("Socket", function() {
   })
 
   xit("should emit over when game is over", function() {
+    // TODO: make it run
     wait()
     dropit.connect(function(socket) {
       dropit.join("p1", function(p1, board) {
@@ -82,6 +86,33 @@ describe("Socket", function() {
               })
               dropit.dropOn(p2, board, "lizard", function(board) {
                 expect(board.status).toBe("game-over")
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+
+  xit("should emit empty when all players leaved", function() {
+    // TODO: make it run
+    wait()
+    dropit.connect(function(socket) {
+      dropit.join("p1", function(p1, board) {
+        dropit.joinTo("p2", board, function(p2, board) {
+          dropit.dropOn(p1, "spock", board, function(board) {
+            dropit.dropOn(p2, "lizard", board, function(board) {
+              socket.emit("subscribe", "/board/" + board.id, function(channels) {
+                socket.on("empty", function(board) {
+                  expect(board.status).toBe("empty")
+                  expect(board.players.length).toBe(0)
+                  done()
+                })
+                dropit.leaveFrom(p1, board, function() {
+                  dropit.leaveFrom(p2, board, function() {
+                    // do nothing
+                  })
+                })
               })
             })
           })
