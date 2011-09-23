@@ -1,0 +1,26 @@
+{
+  "name": "dropit",
+  "description": "Rock-Paper-Scissors-Spock-Lizard Game",
+  "version": "0.0.1",
+  "author": "Gabriele Lana <gabriele.lana@cleancode.it>",
+  "dependencies": {
+    "underscore": "1.1.7",
+    "handlebars": "1.0.2beta",
+    "redis": "0.6.7",
+    "hiredis": "0.1.12",
+    "socket.io": "0.8.4",
+    "socket.io-client": "0.8.4",
+    "node-uuid": "1.2.0",
+    "connect": "1.6.0",
+    "hashlib": "1.0.1",
+    "daemon": "0.3.0",
+    "request": "2.1.1",
+    "printf": "0.0.3",
+    "rimraf": "1.0.4",
+    "async": "0.1.9",
+    "cli": "0.3.7"
+  },
+  "engines": {
+    "node": ">= 0.4.10"
+  }
+}
