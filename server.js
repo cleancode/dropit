@@ -171,10 +171,6 @@ cli.main(function(args, options) {
 
 
 
-  function joinable(boards) {
-    return _(boards).select(function(board) { return board.canBeJoined() })
-  }
-
   function authenticate(request, response, callback) {
     if (request.headers["x-dropit-user"]) {
       var name = request.headers["x-dropit-user"]
