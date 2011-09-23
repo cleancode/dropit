@@ -37,13 +37,13 @@ module.exports = (function(Board) {
     if (numberOfPlayers === 1) {
       this.players[player.name] = player
       this.status = "ready-to-play"
-      this.emit("join", player, this)
+      this.emit("join", player)
       return true
     }
     if (numberOfPlayers === 0) {
       this.players[player.name] = player
       this.status = "waiting-for-player"
-      this.emit("join", player, this)
+      this.emit("join", player)
       return true
     }
     return false
@@ -57,8 +57,10 @@ module.exports = (function(Board) {
       return false
     }
     delete this.players[player.name]
+    this.emit("leave", player)
     if (this.numberOfPlayers() === 0) {
       this.status = "empty"
+      this.emit("empty", this)
     }
     return true
   }
@@ -74,13 +76,16 @@ module.exports = (function(Board) {
     if (this.status === "ready-to-play") {
       this.status = "waiting-for-drop"
       this.drops[player.name] = symbol
+      this.emit("drop", player, symbol)
       return true
     }
     if (this.status === "waiting-for-drop") {
       this.status = "game-over"
       this.drops[player.name] = symbol
+      this.emit("drop", player, symbol)
       this.winner = player.name
       this.checkout()
+      this.emit("over", this)
       return true
     }
     return false

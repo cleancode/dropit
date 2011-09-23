@@ -5,6 +5,7 @@ var util = require("util"),
     connect = require("connect"),
     Player = require("./src/player"),
     Board = require("./src/board"),
+    Boards = require("./src/boards"),
     Bot = require("./src/bot"),
     _ = require("underscore")
 
@@ -29,11 +30,11 @@ cli.main(function(args, options) {
     cli.getUsage()
   }
 
-  var boards = {}
+  var boards = new Boards()
 
   connect.bodyParser.parse["plain/text"] = function(rawBody) { return rawBody }
 
-  connect(
+  var server = connect(
     connect.query(),
     connect.bodyParser(),
     connect.router(function(resource) {
@@ -44,10 +45,9 @@ cli.main(function(args, options) {
         })
       })
 
-
       resource.get("/board/:id", function(request, response) {
         authenticate(request, response, function() {
-          var board = boards[request.params.id]
+          var board = boards.get(request.params.id)
           if (!board) {
             response.writeHead(404)
             return response.end()
@@ -58,7 +58,7 @@ cli.main(function(args, options) {
       })
       resource.post("/board/:id/players", function(request, response) {
         authenticate(request, response, function() {
-          var board = boards[request.params.id]
+          var board = boards.get(request.params.id)
           if (!board) {
             response.writeHead(404)
             return response.end()
@@ -82,7 +82,7 @@ cli.main(function(args, options) {
       })
       resource.post("/board/:id/drops", function(request, response) {
         authenticate(request, response, function() {
-          var board = boards[request.params.id]
+          var board = boards.get(request.params.id)
           if (!board) {
             response.writeHead(404)
             return response.end()
@@ -99,26 +99,24 @@ cli.main(function(args, options) {
       resource.get("/boards", function(request, response) {
         authenticate(request, response, function() {
           response.writeHead(200, {"content-type": "application/json"})
-          response.end(JSON.stringify({ boards: _(joinable(boards)).pluck("id") }))
+          response.end(JSON.stringify({ boards: _(boards.joinable()).pluck("id") }))
         })
       })
       resource.post("/boards", function(request, response) {
         authenticate(request, response, function() {
-          var joinableBoards = joinable(boards)
-          if (joinableBoards.length === 0) {
-            var board = new Board()
-            boards[board.id] = board
-            joinableBoards.push(board)
+          var joinable = boards.joinable()
+          if (joinable.length === 0) {
+            joinable.push(boards.set(new Board()))
             response.writeHead(201, {"content-type": "application/json"})
           } else {
             response.writeHead(303, {"content-type": "application/json"})
           }
-          response.end(JSON.stringify({boards: joinableBoards}))
+          response.end(JSON.stringify({boards: joinable}))
         })
       })
       resource.del("/boards", function(request, response) {
         authenticate(request, response, function() {
-          boards = {}
+          boards.reset()
           response.writeHead(200)
           response.end()
         })
@@ -133,7 +131,14 @@ cli.main(function(args, options) {
         response.end(request.rawBody)
       })
     })
-  ).listen(options.port, options.host)
+  )
+
+
+  var io = require("./lib/socket.io-channels")(
+    require("socket.io").listen(server, {"log level": 0})
+  )
+
+  server.listen(options.port, options.host)
 
   if (options.daemonize) {
     daemon.daemonize(options.log, options.pid, function(error, started) {
