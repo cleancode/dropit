@@ -6,12 +6,13 @@ describe("Bot", function() {
   beforeEach(function() {
     this.p1 = new Player("p1")
     this.board = new Board()
+    this.bot = new Bot()
   })
 
   xit("should drop when board can be played and he is first player", function() {
     // TODO: make it pass
     wait()
-    this.board.join(new Bot(this.board))
+    this.bot.join(this.board)
     this.board.join(this.p1)
     this.board.drop(this.p1, "spock")
     var board = this.board
@@ -25,7 +26,7 @@ describe("Bot", function() {
     // TODO: make it pass
     wait()
     this.board.join(this.p1)
-    this.board.join(new Bot(this.board))
+    this.bot.join(this.board)
     this.board.drop(this.p1, "spock")
     var board = this.board
     setTimeout(function() {

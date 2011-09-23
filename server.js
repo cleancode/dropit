@@ -42,6 +42,18 @@ cli.main(function(args, options) {
         })
       })
 
+      resource.get("/board/:id", function(request, response) {
+        authenticate(request, response, function() {
+          var board = boards.get(request.params.id)
+          if (!board) {
+            response.writeHead(404)
+            return response.end()
+          }
+          response.writeHead(200, {"content-type": "application/json"})
+          response.end(JSON.stringify({board: board}))
+        })
+      })
+
       resource.post("/board/:id/players", function(request, response) {
         authenticate(request, response, function() {
           var board = boards[request.params.id]

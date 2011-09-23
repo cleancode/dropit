@@ -68,6 +68,7 @@ describe("/board", function() {
 
   describe("POST /board/:id/drops", function() {
     it("should drop a symbol for a player", function() {
+      wait()
       dropit.playWith("p1", "p2", function(p1, p2, board) {
         p1.post("/board/" + board.id + "/drops", {json: {symbol: "spock"}}, function(error, response, body) {
           expect(response.statusCode).toBe(201)
@@ -79,6 +80,7 @@ describe("/board", function() {
     })
 
     it("should end the game after the drop of the second player", function() {
+      wait()
       dropit.playWith("p1", "p2", function(p1, p2, board) {
         p1.post("/board/" + board.id + "/drops", {json: {symbol: "spock"}}, function(error, response, body) {
           p2.post("/board/" + board.id + "/drops", {json: {symbol: "rock"}}, function(error, response, body) {
@@ -91,11 +93,11 @@ describe("/board", function() {
     })
 
     it("should drop a timeout symbol after timeout", function() {
-      // TODO: after 50ms the opponent should be named bot
+      // TODO: after 50ms should p1 drop should be timeout
     })
 
     it("should drop a timeout symbol after timeout for both players", function() {
-      // TODO: after 50ms the opponent should be named bot
+      // TODO: after 50ms should p1 and p2 drops should be timeout
     })
   })
 })
