@@ -1,4 +1,6 @@
-var io = require("socket.io-client")
+var io = require("socket.io-client"),
+    qs = require("querystring"),
+    _ = require("underscore")
 
 
 module.exports = function(dropit) {
@@ -11,17 +13,18 @@ module.exports = function(dropit) {
     })
   }
 
-  dropit.join = function(name, callback) {
+  dropit.join = function(name, callback, options) {
     login(name, function(player) {
       player.post("/boards", function(error, response, body) {
-        dropit.joinTo(name, JSON.parse(body).boards[0], callback)
+        dropit.joinTo(name, JSON.parse(body).boards[0], callback, options)
       })
     })
   }
 
-  dropit.joinTo = function(name, board, callback) {
+  dropit.joinTo = function(name, board, callback, options) {
+    options = qs.stringify(_({waitForJoin: 60000, waitForDrop: 60000}).extend(options))
     login(name, function(player) {
-      player.post("/board/" + board.id + "/players?waitForJoin=50&waitForDrop=50", function(error, response, body) {
+      player.post("/board/" + board.id + "/players?" + options, function(error, response, body) {
         expect(response.statusCode).toBe(201)
         callback(player, JSON.parse(body).board)
       })
@@ -40,12 +43,12 @@ module.exports = function(dropit) {
     })
   }
 
-  dropit.playWith = function(p1, p2, callback) {
+  dropit.playWith = function(p1, p2, callback, options) {
     dropit.join(p1, function(p1, board) {
       dropit.joinTo(p2, board, function(p2, board) {
         callback(p1, p2, board)
-      })
-    })
+      }, options)
+    }, options)
   }
 
   dropit.clean = function(p1, callback) {
