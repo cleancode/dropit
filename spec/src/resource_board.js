@@ -76,8 +76,8 @@ describe("/board", function() {
             expect(players).toContain("bot")
             done()
           })
-        }, 100)
-      })
+        }, 50)
+      }, {waitForJoin: 25})
     })
   })
 
@@ -118,9 +118,9 @@ describe("/board", function() {
               expect(body.board.drops["p2"]).toBe("timeout")
               done()
             })
-          }, 100)
+          }, 50)
         })
-      })
+      }, {waitForDrop: 25})
     })
 
     it("should drop a timeout symbol after timeout for both players", function() {
@@ -135,7 +135,7 @@ describe("/board", function() {
             done()
           })
         }, 100)
-      })
+      }, {waitForDrop: 25})
     })
   })
 })

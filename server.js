@@ -80,6 +80,25 @@ cli.main(function(args, options) {
           response.end(JSON.stringify({board: board}))
         })
       })
+      resource.del("/board/:id/player/:name", function(request, response) {
+        authenticate(request, response, function() {
+          var board = boards.get(request.params.id)
+          if (!board) {
+            response.writeHead(404)
+            return response.end()
+          }
+          if (request.player.name !== request.params.name) {
+            response.writeHead(403)
+            return response.end()
+          }
+          if (!board.leave(request.player)) {
+            response.writeHead(404)
+            return response.end()
+          }
+          response.writeHead(200)
+          response.end()
+        })
+      })
       resource.post("/board/:id/drops", function(request, response) {
         authenticate(request, response, function() {
           var board = boards.get(request.params.id)
@@ -123,20 +142,39 @@ cli.main(function(args, options) {
       })
 
       resource.get("/ping", function(request, response) {
-        response.writeHead(200, {"Content-Type": "plain/text"})
+        response.writeHead(200, {"content-type": "plain/text"})
         response.end("PONG")
       })
       resource.post("/echo", function(request, response) {
-        response.writeHead(200, {"Content-Type": request.headers["content-type"]})
+        response.writeHead(200, {"content-type": request.headers["content-type"]})
         response.end(request.rawBody)
       })
     })
   )
 
-
   var io = require("./lib/socket.io-channels")(
     require("socket.io").listen(server, {"log level": 0})
   )
+
+  boards.on("create", function(board) {
+    io.channel("/boards").emit("create", board)
+    board.on("join", function(player) {
+      io.channel("/board/" + board.id).emit("join", player, board)
+    })
+    board.on("drop", function(player, symbol) {
+      io.channel("/board/" + board.id).emit("drop", player, symbol, board)
+    })
+    board.on("over", function(board) {
+      io.channel("/board/" + board.id).emit("over", board)
+    })
+    board.on("leave", function(player) {
+      io.channel("/board/" + board.id).emit("leave", player, board)
+    })
+    board.on("empty", function(board) {
+      io.channel("/board/" + board.id).emit("empty", board)
+      boards.del(board)
+    })
+  })
 
   server.listen(options.port, options.host)
 
@@ -151,10 +189,6 @@ cli.main(function(args, options) {
   }
 
 
-
-  function joinable(boards) {
-    return _(boards).select(function(board) { return board.canBeJoined() })
-  }
 
   function authenticate(request, response, callback) {
     if (request.headers["x-dropit-user"]) {
