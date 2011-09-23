@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>Dropit - Watch</title> 
+		<link href="/css/sen.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="/css/grid.css" media="screen" rel="stylesheet" type="text/css" />
+        <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+        <script src="/js/underscore-1.1.7.min.js" type="text/javascript"></script>
+        <script src="/js/jquery-1.6.4.min.js" type="text/javascript"></script>
+        <script src="/js/watch.js" type="text/javascript"></script>
+		<style type="text/css">
+			body { background-color: #FFF; margin: 8px; }
+			.container { 
+				border-radius: 5px;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				/*background-color: #3E606F;*/
+				background-color: #E6E2AF;
+				padding-top: 10px;
+			}
+			.container p {
+				padding: 10px;
+				border-radius: 5px;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				background-color: #FFFFFF;
+				/*background-color: #ACCFCC;*/
+			}
+			.header h1 {
+				padding: 15px 10px 15px 10px;
+				font-size: 30px;
+				font-weight: 300;
+				text-align: center;
+				margin: 0px 0px 10px 0px;
+				background-color: #FFFFFF;
+			}
+			.win { color: #57D55A; }
+			.loose { color: #F23B2C; }
+			.tie { color: #F23B2C; }
+			.player_name {
+				padding: 20px;
+				position: absolute;
+				font-size: 40px;
+				right: 0px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="container container_12">
+			<div class="header grid_12"> 
+				<h1>WATCH ALL THE GAMES PLAYING NOW...</h1>
+			</div>
+			<div class="clear">&nbsp;</div>
+			<div id="boards">
+			</div>
+			<div style="display:none" id="template">
+				<div class="board">
+					<div class="first player grid_5"> 
+						<p>
+							<img class="player_avatar" src="/images/nerd.png"></img>
+							<img class="player_symbol" src="/images/hidden.png"></img>
+							<span class="player_name">player-001</span>
+						</p> 
+					</div>
+					<div class="vs grid_2"> 
+						<img src="/images/vs.png"></img>
+					</div>
+					<div class="second player grid_5"> 
+						<p>
+							<img class="player_avatar" src="/images/bot.png"></img>
+							<img class="player_symbol" src="/images/hidden.png"></img>
+							<span class="player_name">bot</span>
+						</p> 
+					</div>
+					<div class="clear">&nbsp;</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

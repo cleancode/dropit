@@ -27,20 +27,45 @@ module.exports.SimulatedPlayer = (function(SimulatedPlayer) {
     var self = this
     waitBetween(function() { 
       self.connect(function() {
-        // TODO: implement me
+        self.post("/boards", function(error, response, body) {
+          var board = _(JSON.parse(body).boards).first()
+          self.subscribe(board, function(board) {
+            self.once("play", function(board) {
+              if (_(board.players).chain().pluck("name").contains(self.name).value()) {
+                return waitBetween(function() { self.dropSymbolOn(board, callback) }, 1500, 3000)
+              }
+              self.unsubscribe(board, function() {
+                self.play(callback)
+              })
+            })
+            waitBetween(function() { 
+              self.post("/board/" + board.id + "/players?waitForJoin=3000")
+            }, 1000, 2500)
+          })
+        })
       })
     }, 50, 5000)
   }
 
   SimulatedPlayer.prototype.dropSymbolOn = function(board, callback) {
-    // TODO: implement me
+    var self = this
+    self.once("over", function(board) {
+      self.leaveFrom(board, callback)
+    })
+    self.post("/board/" + board.id + "/drops", {json: {symbol: Bot.pick()}})
   }
 
   SimulatedPlayer.prototype.leaveFrom = function(board, callback) {
-    // TODO: implement me
+    var self = this
+    self.once("again", function() {
+      if (--self.games > 0) {
+        self.log("==", "rest for a while and then play again")
+        return waitBetween(function() { self.play(callback) }, 1000, 6000)
+      }
+      self.disconnect(callback)
+    })
+    self.del("/board/" + board.id + "/player/" + self.name)
   }
-
-
 
   SimulatedPlayer.prototype.connect = function(callback) {
     var self = this

@@ -148,10 +148,21 @@ task({"spec": ["stop", "start"]}, function() {
 
 desc("Start simulation")
 task({"simulation": ["start"]}, function() {
-  var SimulatedPlayer = require("./run/simulation").SimulatedPlayer,
-      options = _({}).extend(DROPIT, {games: 25, verbose: true})
+  var sprintf = require("printf"),
+      SimulatedPlayer = require("./run/simulation").SimulatedPlayer,
+      options = _({}).extend(DROPIT, {games: 25, verbose: true}),
+      numberOfPlayers = 5
 
-  new SimulatedPlayer("p1", options).play(complete)
+  async.parallel(
+    _(_.range(0, numberOfPlayers)).map(function(playerId) {
+      return function(next) { 
+        new SimulatedPlayer(sprintf("player-%03d", playerId+1), options).play(next)
+      }
+    }),
+    function() {
+      complete() 
+    }
+  )
 }, true)
 
 

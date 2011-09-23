@@ -1,6 +1,7 @@
 var util = require("util"),
     fs = require("fs"),
     cli = require("cli"),
+    path = require("path"),
     daemon = require("daemon"),
     connect = require("connect"),
     Player = require("./src/player"),
@@ -164,7 +165,13 @@ cli.main(function(args, options) {
         response.writeHead(200, {"content-type": request.headers["content-type"]})
         response.end(request.rawBody)
       })
-    })
+
+      resource.get("/watch", function(request, response, next) {
+        request.url = request.url.replace("/watch", "/html/watch.html")
+        next()
+      })
+    }),
+    connect["static"](path.join(__dirname, "public"))
   )
 
   var io = require("./lib/socket.io-channels")(
