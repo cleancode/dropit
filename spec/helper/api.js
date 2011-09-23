@@ -14,7 +14,7 @@ module.exports = function(dropit) {
   dropit.join = function(name, callback) {
     login(name, function(player) {
       player.post("/boards", function(error, response, body) {
-        joinTo(name, JSON.parse(body).boards[0], callback)
+        dropit.joinTo(name, JSON.parse(body).boards[0], callback)
       })
     })
   }
@@ -53,4 +53,6 @@ module.exports = function(dropit) {
       callback()
     })
   }
+
+  return dropit
 }

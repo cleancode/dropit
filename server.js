@@ -4,6 +4,7 @@ var util = require("util"),
     daemon = require("daemon"),
     connect = require("connect"),
     Player = require("./src/player"),
+    Board = require("./src/board"),
     _ = require("underscore")
 
 
@@ -27,16 +28,76 @@ cli.main(function(args, options) {
     cli.getUsage()
   }
 
+  var boards = {}
+
   connect.bodyParser.parse["plain/text"] = function(rawBody) { return rawBody }
 
   connect(
     connect.bodyParser(),
     connect.router(function(resource) {
-
       resource.get("/whoami", function(request, response) {
         authenticate(request, response, function() {
           response.writeHead(200, {"content-type": "application/json"})
           response.end(JSON.stringify({player: request.player}))
+        })
+      })
+
+      resource.post("/board/:id/players", function(request, response) {
+        authenticate(request, response, function() {
+          var board = boards[request.params.id]
+          if (!board) {
+            response.writeHead(404)
+            return response.end()
+          }
+          if (!board.join(request.player)) {
+            response.writeHead(403)
+            return response.end()
+          }
+          response.writeHead(201, {"content-type": "application/json"})
+          response.end(JSON.stringify({board: board}))
+        })
+      })
+      resource.post("/board/:id/drops", function(request, response) {
+        authenticate(request, response, function() {
+          var board = boards[request.params.id]
+          if (!board) {
+            response.writeHead(404)
+            return response.end()
+          }
+          if (!board.drop(request.player, request.body.symbol)) {
+            response.writeHead(403)
+            return response.end()
+          }
+          response.writeHead(201, {"content-type": "application/json"})
+          response.end(JSON.stringify({board: board}))
+        })
+      })
+
+      resource.get("/boards", function(request, response) {
+        authenticate(request, response, function() {
+          response.writeHead(200, {"content-type": "application/json"})
+          response.end(JSON.stringify({ boards: _(joinable(boards)).pluck("id") }))
+        })
+      })
+      resource.post("/boards", function(request, response) {
+        authenticate(request, response, function() {
+          var joinableBoards = joinable(boards)
+          if (joinableBoards.length === 0) {
+            var board = new Board()
+            boards[board.id] = board
+            joinableBoards.push(board)
+            response.writeHead(201, {"content-type": "application/json"})
+          } else {
+            response.writeHead(303, {"content-type": "application/json"})
+          }
+          response.end(JSON.stringify({boards: joinableBoards}))
+        })
+      })
+      resource.del("/boards", function(request, response) {
+        authenticate(request, response, function() {
+          boards = {}
+          response.writeHead(200)
+          response.end()
         })
       })
 
@@ -45,7 +106,6 @@ cli.main(function(args, options) {
         response.end("PONG")
       })
       resource.post("/echo", function(request, response) {
-        console.log(request.headers, request.body, request.rawBody)
         response.writeHead(200, {"Content-Type": request.headers["content-type"]})
         response.end(request.rawBody)
       })
@@ -63,6 +123,10 @@ cli.main(function(args, options) {
   }
 
 
+
+  function joinable(boards) {
+    return _(boards).select(function(board) { return board.canBeJoined() })
+  }
 
   function authenticate(request, response, callback) {
     if (request.headers["x-dropit-user"]) {
