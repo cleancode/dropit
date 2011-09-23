@@ -80,6 +80,25 @@ cli.main(function(args, options) {
           response.end(JSON.stringify({board: board}))
         })
       })
+      resource.del("/board/:id/player/:name", function(request, response) {
+        authenticate(request, response, function() {
+          var board = boards.get(request.params.id)
+          if (!board) {
+            response.writeHead(404)
+            return response.end()
+          }
+          if (request.player.name !== request.params.name) {
+            response.writeHead(403)
+            return response.end()
+          }
+          if (!board.leave(request.player)) {
+            response.writeHead(404)
+            return response.end()
+          }
+          response.writeHead(200)
+          response.end()
+        })
+      })
       resource.post("/board/:id/drops", function(request, response) {
         authenticate(request, response, function() {
           var board = boards.get(request.params.id)
