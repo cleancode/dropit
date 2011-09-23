@@ -21,7 +21,15 @@ module.exports = (function(Bot) {
   }
 
   Bot.prototype.playOn = function(board) {
+    var self = this
+    board.on("over", function() {
+      self.leaveFrom(board)  
+    })
     board.drop(this, Bot.pick())
+  }
+
+  Bot.prototype.leaveFrom = function(board) {
+    board.leave(this)
   }
 
   Bot.prototype.toJSON = function() {

@@ -38,6 +38,7 @@ task("lint", function() {
       fileToLint = new jake.FileList()
  
   fileToLint.include(path.join(ROOT_DIRECTORY, "src/*.js"))
+  fileToLint.include(path.join(ROOT_DIRECTORY, "run/*.js"))
   fileToLint.include(path.join(ROOT_DIRECTORY, "spec/src/*.js"))
   fileToLint.include(path.join(ROOT_DIRECTORY, "spec/helper/*.js"))
   fileToLint.include(path.join(ROOT_DIRECTORY, "server.js"))
@@ -144,6 +145,14 @@ task({"spec": ["stop", "start"]}, function() {
   }, isVerbose, showColors, filter)
 })
 
+
+desc("Start simulation")
+task({"simulation": ["start"]}, function() {
+  var SimulatedPlayer = require("./run/simulation").SimulatedPlayer,
+      options = _({}).extend(DROPIT, {games: 25, verbose: true})
+
+  new SimulatedPlayer("p1", options).play(complete)
+}, true)
 
 
 jake.service("redis", function(redis) {
