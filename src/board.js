@@ -1,17 +1,18 @@
 var util = require("util"),
     uuid = require("node-uuid"),
+    EventEmitter = require("events").EventEmitter,
     _ = require("underscore")
 
 
 module.exports = (function(Board) {
 
-  var SYMBOLS = ["rock", "scissors", "paper", "lizard", "spock"]
+  var SYMBOLS = ["rock", "scissors", "paper", "lizard", "spock", "timeout"]
   var RULES = {
-    "lizard": ["paper", "spock"],
-    "spock": ["scissors", "rock"],
-    "scissors": ["lizard", "paper"],
-    "rock": ["scissors", "lizard"],
-    "paper": ["spock", "rock"]
+    "lizard": ["paper", "spock", "timeout"],
+    "spock": ["scissors", "rock", "timeout"],
+    "scissors": ["lizard", "paper", "timeout"],
+    "rock": ["scissors", "lizard", "timeout"],
+    "paper": ["spock", "rock", "timeout"]
   }
 
   Board = function() {
@@ -20,7 +21,10 @@ module.exports = (function(Board) {
     this.players = {}
     this.score = {}
     this.status = "waiting-for-players"
+    EventEmitter.call(this)
   }
+
+  util.inherits(Board, EventEmitter)
 
   Board.prototype.join = function(player) {
     var numberOfPlayers = this.numberOfPlayers()
@@ -33,11 +37,13 @@ module.exports = (function(Board) {
     if (numberOfPlayers === 1) {
       this.players[player.name] = player
       this.status = "ready-to-play"
+      this.emit("join", player, this)
       return true
     }
     if (numberOfPlayers === 0) {
       this.players[player.name] = player
       this.status = "waiting-for-player"
+      this.emit("join", player, this)
       return true
     }
     return false
@@ -55,6 +61,10 @@ module.exports = (function(Board) {
       this.status = "empty"
     }
     return true
+  }
+
+  Board.prototype.timeout = function(player) {
+    return this.drop(player, "timeout")
   }
 
   Board.prototype.drop = function(player, symbol) {
@@ -88,12 +98,12 @@ module.exports = (function(Board) {
     }
     if (_(RULES[symbols[0]]).contains(symbols[1])) {
       this.score[players[0]] = {score: 5, result: "win"}
-      this.score[players[1]] = {score: 1, result: "loose"}
+      this.score[players[1]] = {score: (symbols[1] === "timeout") ? 0 : 1, result: "loose"}
       return;
     }
     if (_(RULES[symbols[1]]).contains(symbols[0])) {
       this.score[players[1]] = {score: 5, result: "win"}
-      this.score[players[0]] = {score: 1, result: "loose"}
+      this.score[players[0]] = {score: (symbols[0] === "timeout") ? 0 : 1, result: "loose"}
       return;
     }
   }
@@ -149,7 +159,7 @@ module.exports = (function(Board) {
   }
 
   Board.symbols = function() {
-    return SYMBOLS
+    return _(SYMBOLS).without("timeout")
   }
 
   return Board

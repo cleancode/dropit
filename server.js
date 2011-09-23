@@ -5,6 +5,7 @@ var util = require("util"),
     connect = require("connect"),
     Player = require("./src/player"),
     Board = require("./src/board"),
+    Bot = require("./src/bot"),
     _ = require("underscore")
 
 
@@ -33,6 +34,7 @@ cli.main(function(args, options) {
   connect.bodyParser.parse["plain/text"] = function(rawBody) { return rawBody }
 
   connect(
+    connect.query(),
     connect.bodyParser(),
     connect.router(function(resource) {
       resource.get("/whoami", function(request, response) {
@@ -42,6 +44,18 @@ cli.main(function(args, options) {
         })
       })
 
+
+      resource.get("/board/:id", function(request, response) {
+        authenticate(request, response, function() {
+          var board = boards[request.params.id]
+          if (!board) {
+            response.writeHead(404)
+            return response.end()
+          }
+          response.writeHead(200, {"content-type": "application/json"})
+          response.end(JSON.stringify({board: board}))
+        })
+      })
       resource.post("/board/:id/players", function(request, response) {
         authenticate(request, response, function() {
           var board = boards[request.params.id]
@@ -53,6 +67,15 @@ cli.main(function(args, options) {
             response.writeHead(403)
             return response.end()
           }
+
+          setTimeout(function() {
+            board.timeout(request.player)
+          }, request.query.waitForDrop || 30000)
+
+          setTimeout(function() {
+            (new Bot(board)).join(board)
+          }, request.query.waitForJoin || 60000)
+
           response.writeHead(201, {"content-type": "application/json"})
           response.end(JSON.stringify({board: board}))
         })

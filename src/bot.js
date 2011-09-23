@@ -5,18 +5,23 @@ var util = require("util"),
 
 module.exports = (function(Bot) {
   
-  Bot = function(board) {
+  Bot = function() {
     this.name = "bot"
-    this.board = board
-    this.join()
   }
 
-  Bot.prototype.join = function() {
-    // TODO: join and wait until can be played then this.play()
+  Bot.prototype.join = function(board) {
+    board.join(this)
+    if (board.canBePlayed()) {
+      return this.playOn(board)
+    }
+    var self = this
+    board.once("join", function() {
+      self.playOn(board)
+    })
   }
 
-  Bot.prototype.play = function() {
-    this.board.drop(this, Bot.pick())
+  Bot.prototype.playOn = function(board) {
+    board.drop(this, Bot.pick())
   }
 
   Bot.prototype.toJSON = function() {

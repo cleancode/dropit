@@ -86,8 +86,7 @@ describe("Board", function() {
   })
 
   describe("timeout", function() {
-    xit("should drop for a player", function() {
-      // TODO: make it pass
+    it("should drop for a player", function() {
       this.board.join(this.p1)
       this.board.join(this.p2)
       this.board.timeout(this.p1)
@@ -95,8 +94,7 @@ describe("Board", function() {
       expect(this.board.status).toBe("waiting-for-drop")
     })
     
-    xit("should loose with every symbol", function() {
-      // TODO: make it pass
+    it("should loose with every symbol", function() {
       this.board.join(this.p1)
       this.board.join(this.p2)
       this.board.timeout(this.p1)

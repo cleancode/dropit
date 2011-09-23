@@ -1,3 +1,5 @@
+var _ = require("underscore")
+
 describe("/board", function() {
   var dropit = require("../helper/api.js")({})
 
@@ -62,12 +64,26 @@ describe("/board", function() {
     })
 
     it("should join a bot after timeout", function() {
-      // TODO: after 50ms the opponent should be named bot
+      wait()
+      dropit.join("p1", function(p1, board) {
+        expect(board.status).toBe("waiting-for-player")
+        setTimeout(function() {
+          p1.get("/board/" + board.id, {json:true}, function(error, response, body) {
+            var players = _(body.board.players).pluck("name")
+            expect(response.statusCode).toBe(200)
+            expect(body.board.status).toBe("waiting-for-drop")
+            expect(players).toContain("p1")
+            expect(players).toContain("bot")
+            done()
+          })
+        }, 50)
+      })
     })
   })
 
   describe("POST /board/:id/drops", function() {
     it("should drop a symbol for a player", function() {
+      wait()
       dropit.playWith("p1", "p2", function(p1, p2, board) {
         p1.post("/board/" + board.id + "/drops", {json: {symbol: "spock"}}, function(error, response, body) {
           expect(response.statusCode).toBe(201)
@@ -79,6 +95,7 @@ describe("/board", function() {
     })
 
     it("should end the game after the drop of the second player", function() {
+      wait()
       dropit.playWith("p1", "p2", function(p1, p2, board) {
         p1.post("/board/" + board.id + "/drops", {json: {symbol: "spock"}}, function(error, response, body) {
           p2.post("/board/" + board.id + "/drops", {json: {symbol: "rock"}}, function(error, response, body) {
@@ -91,11 +108,34 @@ describe("/board", function() {
     })
 
     it("should drop a timeout symbol after timeout", function() {
-      // TODO: after 50ms the opponent should be named bot
+      wait()
+      dropit.playWith("p1", "p2", function(p1, p2, board) {
+        p1.post("/board/" + board.id + "/drops", {json: {symbol: "spock"}}, function(error, response, body) {
+          setTimeout(function() {
+            p1.get("/board/" + board.id, {json: true}, function(error, response, body) {
+              expect(response.statusCode).toBe(200)
+              expect(body.board.status).toBe("game-over")
+              expect(body.board.drops["p2"]).toBe("timeout")
+              done()
+            })
+          }, 50)
+        })
+      })
     })
 
     it("should drop a timeout symbol after timeout for both players", function() {
-      // TODO: after 50ms the opponent should be named bot
+      wait()
+      dropit.playWith("p1", "p2", function(p1, p2, board) {
+        setTimeout(function() {
+          p1.get("/board/" + board.id, {json: true}, function(error, response, body) {
+            expect(response.statusCode).toBe(200)
+            expect(body.board.status).toBe("game-over")
+            expect(body.board.drops["p1"]).toBe("timeout")
+            expect(body.board.drops["p2"]).toBe("timeout")
+            done()
+          })
+        }, 50)
+      })
     })
   })
 })
