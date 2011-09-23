@@ -1,4 +1,5 @@
-var io = require("socket.io-client")
+var io = require("socket.io-client"),
+    _ = require("underscore")
 
 
 module.exports = function(dropit) {
