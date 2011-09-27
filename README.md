@@ -24,4 +24,4 @@ This is a pure javascript/node.js implementation of the game. The purpose was to
 * __jake start__: start all services (dropit server and redis server)
 * __jake stop__: stop all services (dropit server and redis server)
 * __jake spec__: run all specs
-* __jake simulation: run a bunch of simulated games with a few of simulated players (see Jakefile to change games/players number)
+* __jake simulation__: run a bunch of simulated games with a few of simulated players (see Jakefile to change games/players number)
