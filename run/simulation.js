@@ -8,6 +8,13 @@ var util = require("util"),
     _ = require("underscore")
 
 
+_.mixin({
+  pick: function(obj) {
+    if (!_.isArray(obj)) return obj
+    return obj[Math.floor(Math.random() * obj.length)]
+  }
+})
+
 module.exports.SimulatedPlayer = (function(SimulatedPlayer) {
  
   SimulatedPlayer = function(name, options) {
@@ -28,7 +35,7 @@ module.exports.SimulatedPlayer = (function(SimulatedPlayer) {
     waitBetween(function() { 
       self.connect(function() {
         self.post("/boards", function(error, response, body) {
-          var board = _(JSON.parse(body).boards).first()
+          var board = _(JSON.parse(body).boards).pick()
           self.subscribe(board, function(board) {
             self.once("play", function(board) {
               if (_(board.players).chain().pluck("name").contains(self.name).value()) {

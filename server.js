@@ -126,8 +126,10 @@ cli.main(function(args, options) {
       resource.post("/boards", function(request, response) {
         authenticate(request, response, function() {
           var joinable = boards.joinable()
-          if (joinable.length === 0) {
-            joinable.push(boards.set(new Board()))
+          if (joinable.length < 5) {
+            _(10).times(function() {
+              joinable.push(boards.set(new Board()))
+            })
             response.writeHead(201, {"content-type": "application/json"})
           } else {
             response.writeHead(303, {"content-type": "application/json"})

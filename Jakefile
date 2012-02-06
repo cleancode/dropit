@@ -156,7 +156,7 @@ task({"simulation": ["start"]}, function() {
   async.parallel(
     _(_.range(0, numberOfPlayers)).map(function(playerId) {
       return function(next) { 
-        new SimulatedPlayer(sprintf("player-%03d", playerId+1), options).play(next)
+        new SimulatedPlayer(sprintf("player-%04d", playerId+1), options).play(next)
       }
     }),
     function() {
